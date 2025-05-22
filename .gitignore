@@ -1,0 +1,11 @@
+# Ignoruj přihlašovací údaje
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# IDE a OS soubory
+.vscode/
+*.swp
+.DS_Store

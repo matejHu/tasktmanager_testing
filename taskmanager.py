@@ -1,15 +1,19 @@
 import mysql.connector
+from dotenv import load_dotenv
+import os
 from mysql.connector import Error
+
+load_dotenv()
 
 def pripojeni_db():
 
     try:
         connection = mysql.connector.connect(
-            host="127.0.0.1",
-            port=3306,
-            database="taskmanager",
-            user="root",
-            password="password",
+            host=os.getenv("DB_HOST"),
+            port=int(os.getenv("DB_PORT")),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            database=os.getenv("DB_NAME"),
             )
         
         if connection.is_connected():
@@ -100,7 +104,7 @@ def pridat_ukol_testDB(connection, nazev, popis):
     cursor.execute("""
         INSERT INTO ukoly (nazev, popis, stav)
         VALUES (%s, %s, %s)
-    """, (nazev, popis, "nezahájen"))
+    """, (nazev, popis, "nezahájeno"))
     connection.commit()
     cursor.close()
 
@@ -167,6 +171,8 @@ def aktualizovat_ukol(connection):
         if stav not in ["probíhá", "hotovo"]:
             print("Neplatný stav. Stav musí být 'probíhá' nebo 'hotovo'.")
             return
+        
+        id_ukolu = int(id_ukolu)
 
         aktualizovat_ukol_testDB(connection, id_ukolu, stav)
     except Error as e:
@@ -223,5 +229,6 @@ def odstranit_ukol(connection):
             print("Úkol byl smazán.")
     finally:
         cursor.close()
+
 if __name__ == "__main__":
     hlavni_menu()

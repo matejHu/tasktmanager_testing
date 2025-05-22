@@ -1,5 +1,7 @@
 from taskmanager import pridat_ukol_testDB, aktualizovat_ukol_testDB, odstranit_ukol_testDB
 import mysql.connector
+from dotenv import load_dotenv
+import os
 import pytest
 
 TEST_DB_NAME = "taskmanager_test"
@@ -8,9 +10,11 @@ TEST_DB_NAME = "taskmanager_test"
 def db_connection():
     # Setup: vytvoření databáze a tabulky
     conn = mysql.connector.connect(
-        host="127.0.0.1",
-        user="root",
-        password="password"
+        host=os.getenv("DB_HOST"),
+        port=int(os.getenv("DB_PORT")),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME"),
     )
     cursor = conn.cursor()
     cursor.execute(f"CREATE DATABASE IF NOT EXISTS {TEST_DB_NAME}")
@@ -21,7 +25,7 @@ def db_connection():
             id INT AUTO_INCREMENT PRIMARY KEY,
             nazev VARCHAR(45) NOT NULL,
             popis TEXT,
-            stav ENUM('nezahájen', 'probíhá', 'hotovo') DEFAULT 'nezahájen',
+            stav ENUM('nezahájeno', 'probíhá', 'hotovo') DEFAULT 'nezahájeno',
             datum_vytvoreni TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -31,9 +35,10 @@ def db_connection():
 
     # Připojení pro testy
     connection = mysql.connector.connect(
-        host="127.0.0.1",
-        user="root",
-        password="password",
+        host=os.getenv("DB_HOST"),
+        port=int(os.getenv("DB_PORT")),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
         database=TEST_DB_NAME
     )
     yield connection
@@ -72,7 +77,7 @@ def test_aktualizovat_ukol_positiv(db_connection):
     cursor.execute("""
         INSERT INTO ukoly (nazev, popis, stav)
         VALUES (%s, %s, %s)
-    """, ("Úkol k aktualizaci", "Popis", "nezahájen"))
+    """, ("Úkol k aktualizaci", "Popis", "nezahájeno"))
     db_connection.commit()
 
 
